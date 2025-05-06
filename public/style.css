@@ -90,3 +90,8 @@ button {
     background-image: url('images/player.png');
     background-size: cover;
     }
+
+    .hornmonster{
+        background-image: url('images/background.png');
+        background-size: cover; 
+    }
