@@ -8,7 +8,7 @@ body{
     padding: 0;
     background-size: cover;
     background-position: center;
-    background-color: #3b7b32;
+    background-color: #44a84c;
 }
 
 #intro-screen{
@@ -58,7 +58,7 @@ button {
 #game-board {
     display: grid;
     gap: 0px;
-    background-image: url('images/background.png');
+    background-image: url('images/player.png');
     background-size: cover;
     background-position: center;
     width : fit-content;
@@ -80,18 +80,36 @@ button {
 }
         
 .wall {
-    background-image: url('images/wall.png');
+    background-image: url('images/haamu.png');
     width: 50px;
     height: 50px;
     background-size: cover;
 }
 
 .player {
-    background-image: url('images/player.png');
+    background-image: url('images/background.png');
     background-size: cover;
-    }
+}
 
-    .hornmonster{
-        background-image: url('images/background.png');
-        background-size: cover; 
+.hornmonster{
+    background-image: url('images/wall.png');
+    background-size: cover;
+}
+
+.bullet {
+    background-color: rgb(91, 226, 125);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    animation: fadeOut 0.5s ease-out;
+}
+    
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
     }
+    100% {
+        opacity: 0;
+    }
+}
+
