@@ -6,6 +6,8 @@ let ghosts = [];
 let ghostSpeed = 1000; // Aloitusnopeus haamuille (millisekunteina)
 let isGameRunning = false;
 let ghostInterval;
+let score = 0;
+
 document.getElementById("new-game-btn").addEventListener('click',startGame);
 document.addEventListener('keydown', (event) => {
     if(isGameRunning){
@@ -36,7 +38,7 @@ document.addEventListener('keydown', (event) => {
             break;
     }
     event.preventDefault(); // Prevent default scrolling behaviour
-}
+    }
 });
 
 function calculateCellSize() {
@@ -54,14 +56,15 @@ function startGame(){
     isGameRunning = true; // Peli käynnissä
     document.getElementById("intro-screen").style.display='none';
     document.getElementById("game-screen").style.display='block';
+    score = 0;
+    updateScoreBoard(0); // Päivitä pistetaulu funktio
 
     player = new Player(0,0);
     board = generateRandomBoard();
-        setTimeout(() => {
-        ghostInterval = setInterval(moveGhosts, ghostSpeed)
-            },1000);
+    setTimeout(() => {
+        ghostInterval = setInterval(moveGhosts, ghostSpeed);
+    },1000);
     drawBoard(board);
-
 }
 
 function generateRandomBoard(){
@@ -100,6 +103,7 @@ function drawBoard(board){
 
             cell.style.width = cellSize + "px";
             cell.style.height = cellSize + "px";
+
 
             if(board[y][x]=='W'){
                 cell.classList.add('wall');
@@ -175,6 +179,7 @@ function randomEmptyPosition(board){
     else {
         return randomEmptyPosition(board);
     }
+
 }
 
 //Asetetaan solun sisältö
@@ -197,37 +202,32 @@ function generateGhosts(board){
     }
 }
 
-
-function generateGhosts(board){
-    for (let i = 0; i < 5; i++) {
-        const [ghostX, ghostY] = randomEmptyPosition(board);
-        console.log(ghostX,ghostY);
-        setCell(board, ghostX, ghostY, 'H');
-        ghosts.push(new Ghost(ghostX, ghostY)); // Add each ghost to the list
-        console.log(ghosts);
-    }
-}
-
 function shootAt(x, y) {
     if(getCell(board,x,y) ==='W'){
         return;
     }
+//Tutkitaan osutaanko haamuun
     const ghostIndex = ghosts.findIndex(ghost=> ghost.x === x && ghost.y === y);
     if (ghostIndex !== -1) {
         // Remove the ghost from the list
-    ghosts.splice(ghostIndex, 1);
+        ghosts.splice(ghostIndex, 1);
+        updateScoreBoard(50);
     }
     console.log(ghosts);
+
     setCell(board, x, y, 'B');    
     drawBoard(board);
+
     if (ghosts.length === 0){
         alert('kaikki ammuttu');
+        startNextLevel();
     }
 }
 
 function moveGhosts(){
     const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y }));
-     ghosts.forEach(ghost => {
+
+    ghosts.forEach(ghost => {
         const newPosition = ghost.moveGhostTowardsPlayer(player, board, oldGhosts);
           
         ghost.x = newPosition.x;
@@ -235,15 +235,26 @@ function moveGhosts(){
         
         setCell(board, ghost.x, ghost.y, 'H');
         // Check if ghost touches the player
-      if (ghost.x === player.x && ghost.y === player.y) {
+        if (ghost.x === player.x && ghost.y === player.y) {
           endGame() // End the game
-      return;
+        return;
       }
-          
-      });
-    
-}
 
+});
+        
+    // Tyhjennä vanhat haamujen paikat laudalta
+    oldGhosts.forEach(ghost => {
+        board[ghost.y][ghost.x] = ' '; // Clear old ghost position
+    });
+    
+    // Update the board with new ghost positions
+        ghosts.forEach(ghost => {
+            board[ghost.y][ghost.x] = 'H';
+    });
+    
+    // Redraw the board to reflect ghost movement
+    drawBoard(board);
+}
 
 class Player{
     constructor(x,y){
@@ -277,20 +288,19 @@ class Player{
 }
 
 class Ghost{
-    return;
     constructor(x,y){
         this.x  = x;
         this.y = y;
     }
     moveGhostTowardsPlayer(player, board, oldGhosts){
-    let dx = player.x - this.x;
-    let dy = player.y - this.y;
-    // lista mahdollisista siirroista pelaajaan päin  
-    let moves = [];
+        let dx = player.x - this.x;
+        let dy = player.y - this.y;
+        // lista mahdollisista siirroista pelaajaan päin  
+        let moves = [];
  
-    // Lisää siirrot listalle riippuen siitä, kumpi koordinaatti on suurempi
-    // Tämä päättää, mihin suuntaan haamu liikkuu ensisijaisesti, perustuen siihen, kumpi etäisyys on suurempi, x- vai y-suuntainen.
-    //Tämä lisää mahdolliset pelaajaan päin liikkeet listaan moves siten, että ensisijainen liikesuunta on se, joka vähentää etäisyyttä pelaajaan eniten.
+        // Lisää siirrot listalle riippuen siitä, kumpi koordinaatti on suurempi
+        // Tämä päättää, mihin suuntaan haamu liikkuu ensisijaisesti, perustuen siihen, kumpi etäisyys on suurempi, x- vai y-suuntainen.
+        //Tämä lisää mahdolliset pelaajaan päin liikkeet listaan moves siten, että ensisijainen liikesuunta on se, joka vähentää etäisyyttä pelaajaan eniten.
     if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0) moves.push({ x: this.x + 1, y: this.y }); // Move right
         else moves.push({ x: this.x - 1, y: this.y }); // Move left
@@ -302,6 +312,7 @@ class Ghost{
         if (dx > 0) moves.push({ x: this.x + 1, y: this.y }); // Move right
         else moves.push({ x: this.x - 1, y: this.y }); //  Move left
     }
+    
     // Valitse ensimmäinen mahdollinen siirto, joka ei ole seinä tai toisen haamun päällä
     //.some(): Tämä on JavaScriptin taulukkometodi, joka tarkistaa, täyttääkö vähintään yksi taulukon alkio annetun ehdon. Se palauttaa true, jos jokin alkio täyttää ehdon, muuten false.
     //h => h.x === move.x && h.y === move.y: Tämä on nuolifunktio (arrow function), joka toimii ehtona .some()-metodille. Se tarkistaa, onko jokin haamu (g) samassa paikassa kuin move-koordinaatit (move.x ja move.y).
@@ -309,24 +320,53 @@ class Ghost{
     //g.y === move.y: Tarkistaa, onko haamun y-koordinaatti sama kuin move.y.
     //&&: Molempien ehtojen täytyy olla totta, jotta koko ehto olisi totta.
     //! (looginen NOT): Tämä kääntää .some()-metodin palauttaman arvon.
-        for (let move of moves) {
+    //! (looginen NOT): Tämä kääntää .some()-metodin palauttaman arvon. 
+    // Jos .some() palauttaa true (eli jokin haamu on samassa paikassa kuin move), ! kääntää sen false:ksi. Jos .some() palauttaa false (eli mikään haamu ei ole samassa paikassa kuin move), ! kääntää sen true:ksi.
+    for (let move of moves) {
         if (board[move.y][move.x] === ' ' || board[move.y][move.x] === 'P' &&
         !oldGhosts.some(h => h.x === move.x && h.y === move.y)) // Tarkista, ettei haamu liiku toisen haamun päälle) 
         { 
             return move;
         }
-    }        // Jos kaikki pelaajaan päin suunnat ovat esteitä, pysy paikallaan
+    }
+        // Jos kaikki pelaajaan päin suunnat ovat esteitä, pysy paikallaan
         return { x: this.x, y: this.y };
-    
-}
-}
-function endGame() {
-    isGameRunning = false;
- clearInterval(ghostInterval);
-  alert('Game Over! The ghost caught you!');
-   // Show intro-view ja hide game-view
 
+    }
+}
+
+function endGame() {
+  isGameRunning = false;
+  clearInterval(ghostInterval);
+  alert('Game Over! The ghost caught you!');
+
+  // Show intro-view ja hide game-view
   document.getElementById('intro-screen').style.display = 'block';
   document.getElementById('game-screen').style.display = 'none';
+}
 
+function updateScoreBoard(points) {
+   const scoreBoard = document.getElementById('score-board');
+    score = score+points;
+
+   scoreBoard.textContent = `Pisteet: ${score}`;
+}
+function startNextLevel() {
+  alert('Level Up! Haamujen nopeus kasvaa.');
+
+  // Generoi uusi pelikenttä
+  board = generateRandomBoard();
+  drawBoard(board);
+
+  ghostSpeed = ghostSpeed*0.9;
+
+  // Pysäytä vanha intervalli ja käynnistä uusi nopeammin
+  clearInterval(ghostInterval);
+
+   //Haamut alkavat liikkumaan sekunnin päästä startin painamisesta
+   setTimeout(() => {
+    //Laitetaan haamut liikkumaan sekunnin välein
+    ghostInterval = setInterval(moveGhosts, ghostSpeed)
+    }, 1000);
+  
 }

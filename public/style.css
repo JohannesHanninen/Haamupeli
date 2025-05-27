@@ -8,7 +8,7 @@ body{
     padding: 0;
     background-size: cover;
     background-position: center;
-    background-color: #44a84c;
+    background-color: #3d6646;
 }
 
 #intro-screen{
@@ -16,7 +16,7 @@ body{
     /*background-repeat: repeat-y;*/
     background-size: 900px auto;
     background-position: center;
-    color: white;
+    color: rgb(68, 150, 72);
     padding: 20px;
     text-align: center;
     max-width: 900px;
@@ -58,7 +58,7 @@ button {
 #game-board {
     display: grid;
     gap: 0px;
-    background-image: url('images/player.png');
+    background-image: url('images/background.png');
     background-size: cover;
     background-position: center;
     width : fit-content;
@@ -66,9 +66,9 @@ button {
 /*     width: 50vw; 
     height: 50vw; */ 
     margin: 10px auto;
-    border: 2px solid #333;
+    border: 2px solid #2e6831;
     padding: 0px;
-    background-color: rgba(221, 221, 221, 0.8);
+    background-color: rgba(73, 141, 75, 0.8);
 }
 
 .cell {
@@ -80,24 +80,24 @@ button {
 }
         
 .wall {
-    background-image: url('images/haamu.png');
+    background-image: url('images/wall.png');
     width: 50px;
     height: 50px;
     background-size: cover;
 }
 
 .player {
-    background-image: url('images/background.png');
+    background-image: url('images/player.png');
     background-size: cover;
 }
 
 .hornmonster{
-    background-image: url('images/wall.png');
+    background-image: url('images/haamu.png');
     background-size: cover;
 }
 
 .bullet {
-    background-color: rgb(91, 226, 125);
+    background-color: rgb(53, 114, 57);
     border-radius: 50%;
     width: 100%;
     height: 100%;
@@ -113,3 +113,13 @@ button {
     }
 }
 
+#score-board {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px;
+    color: #49834b;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
